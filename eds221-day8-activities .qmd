@@ -1,0 +1,108 @@
+---
+title: "eds221-day8-activities"
+format: html
+editor: visual
+---
+
+## **Task 1: Do your data viz worst**
+
+Just like it takes a lot of work to make a really wonderful graph, it takes effort to make a graph really awful. Put effort and creativity into this - you will learn a lot in the process if you do.
+
+Using the 'space_launches.csv' data (I'll drop this into Slack), create a new .Rmd and create your worst possible graph by customizing (from the ggplot default) in **at least 8 ways** - more encouraged - to make it as terrible as possible. The data were previously shared for #TidyTuesday, and descriptions of dataset & variables can be found [**here**](https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-01-15). You can plot whatever variable(s) you choose, and make whatever graph type you want.
+
+**Once you're done, drop your worst graph (as a .png or .jpg) into the course Slack channel.**
+
+Some ideas:
+
+-   fonts
+
+-   background images
+
+-   coord\_\*
+
+-   panel / plot / geom / text colors
+
+-   point / line patterns and shapes
+
+-   gridline updates
+
+-   tickmark frequency
+
+-   angles
+
+Here's some inspiration from a few Bren MESM students.
+
+```{r}
+library(patchwork)
+library(tidyverse)
+library(janitor)
+library(ggrepel)
+library(gghighlight)
+library(paletteer)
+library(here)
+library(dplyr)
+library(readr)
+
+```
+
+```{r}
+space_launches_df <- read_csv(here("data", "space_launches.csv"))
+
+
+```
+
+```{r}
+space_launches_df %>% 
+  ggplot(aes(x=variant, y = mission))+geom_point(shape=22) +theme(axis.text.x = element_text(face="bold", color="#993333", size=14, angle=45),axis.text.y = element_text(face="bold", color="#993333", size=14, angle=45))
+```
+
+## **Task 2: Wrangling practice with the SF Greenhouse Gas data**
+
+-   Download the San_Francisco_Communitywide_Greenhouse_Gas_Inventory.csv file (I'll put this in Slack). Information about the data is available [**here**](https://catalog.data.gov/dataset/san-francisco-communitywide-greenhouse-gas-inventory).
+
+-   Read in the SF emissions dataset, then complete the following:
+
+1.  Create a summary table of total annual greenhouse gas emissions (only from Emissions_mtCO2e column) by sector_general
+
+```{r}
+sf_ghg <- read_csv(here("data", "San_Francisco_Communitywide_Greenhouse_Gas_Inventory.csv"))
+```
+
+1.  Create a summary table of total annual greenhouse gas emissions (only from Emissions_mtCO2e column) by year and commodity type
+
+```{r}
+
+sfghg_sum <- sf_ghg %>% group_by(Calendar_Year,Commodity_Type) %>% summarize(Emissions_mtCO2e)
+
+
+
+```
+
+1.  Create a subset of the data that only contains observations from 2005 on, only for observations where `Sector_Detail2` contains the pattern "PG&E", then limit to columns `Calendar_Year`, `Sector_Detail2` and `Emissions_mtCO2e`.
+
+```{r}
+sfghg_2005 <- sf_ghg %>% filter(Calendar_Year == 2005) %>%
+  filter(str_detect(Sector_Detail2, pattern = "PG&E")) %>% 
+  select(Calendar_Year, Sector_Detail2, Emissions_mtCO2e)
+
+View(sfghg_2005)
+
+
+
+```
+
+## **Task 3: Do your data viz best**
+
+Create a finalized graph (as perfect as you can make it) using the San Francisco GHG emissions dataset. **You** get to choose what you want to visualize. You can pick which variables & observations you're interested in. You may want to do some wrangling / summarizing first.
+
+Once you've decided on what to plot, create the best graph that you can to communicate what's going on with the data.
+
+**Once you're done, drop your best graph (as a .png or .jpg) into the course Slack channel.**
+
+```{r}
+sfghg_2005 %>% 
+    filter(Sector_Detail2 %in% c("PG&E Residential", "PG&E Municipal Buildings", "PG&E District", "PG&E Commercial & Industrial", "PG&E Direct Access")) %>%
+  ggplot(aes(y=Sector_Detail2,x=Emissions_mtCO2e, fill=Sector_Detail2))+geom_col() +ylab("PG&E Sector Type") + ggtitle("PG&E Sector Type by Total Emissions in 2005 ") +labs(fill = "Sector Type")
+```
+
+## **Done with Day 8 tasks**
